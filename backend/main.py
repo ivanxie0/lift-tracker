@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+from database import engine
 
 app = FastAPI()
 
@@ -14,3 +16,8 @@ app.add_middleware(
 def health():
     return {"status": "ok"}
 
+@app.get("/db-check")
+def db_check():
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT 1")).scalar()
+    return {"database": "ok", "result": result}
