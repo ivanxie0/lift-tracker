@@ -1,5 +1,5 @@
 from datetime import date, time
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 class Base(DeclarativeBase):
@@ -37,3 +37,19 @@ class WorkoutSet(Base):
     weight: Mapped[float] = mapped_column()
     reps: Mapped[int] = mapped_column()
     reps_in_reserve: Mapped[int | None] = mapped_column()
+    
+class Muscle(Base):
+    __tablename__ = "muscles"
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), unique=True)
+    muscle_group: Mapped[str] = mapped_column(String(255))
+
+class ExerciseMuscle(Base):
+    __tablename__ = "exercise_muscles"
+    __table_args__ = (UniqueConstraint("exercise_id", "muscle_id"),)
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    exercise_id: Mapped[int] = mapped_column(ForeignKey("exercises.id"))
+    muscle_id: Mapped[int] = mapped_column(ForeignKey("muscles.id"))
+    role: Mapped[str] = mapped_column(String(255))
